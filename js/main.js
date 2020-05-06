@@ -22,6 +22,7 @@ const buttonOut = document.querySelector('.button-out');
 let login = localStorage.getItem('gloDelivery');
 
 function toggleModalAuth() {
+  loginInput.style.borderColor = '';         
   modalAuth.classList.toggle('is-open');
 }
 
@@ -54,6 +55,7 @@ function notAuthorized() {
 
   function logIn(event) {
     event.preventDefault();
+    if (loginInput.value){
     login = loginInput.value;
 
     localStorage.setItem('gloDelivery', login)    
@@ -64,6 +66,10 @@ function notAuthorized() {
     logInForm.removeEventListener('submit', logIn)
     logInForm.reset();
     checkAuth();
+    }
+    else{
+      loginInput.style.borderColor = 'red';
+    }
   }
 
   buttonAuth.addEventListener('click', toggleModalAuth);
