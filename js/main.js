@@ -16,6 +16,10 @@ const restaurants = document.querySelector('.restaurants');
 const menu = document.querySelector('.menu');
 const logo = document.querySelector('.logo');
 const cardsMenu = document.querySelector('.cards-menu');
+const restaurantTitle = document.querySelector('.restaurant-title');
+const rating = document.querySelector('.rating');
+const minPrice = document.querySelector('.price');
+const category = document.querySelector('.category');
 
 
 let login = localStorage.getItem('gloDelivery');
@@ -111,10 +115,11 @@ function checkAuth() {
 function createCardRestaurant({ image, kitchen, name, price, stars, products,
   time_of_delivery: timeOfDelivery }) {
 
-
-
   const card = `
-  <a class="card card-restaurant" data-products="${products}">
+  <a class="card card-restaurant" 
+  data-products="${products}"
+  data-info="${[name, price, stars, kitchen]}"
+  >
 						<img src="${image}" alt="image" class="card-image"/>
 						<div class="card-text">
 							<div class="card-heading">
@@ -133,8 +138,9 @@ function createCardRestaurant({ image, kitchen, name, price, stars, products,
   `;
 
   cardsRestaurants.insertAdjacentHTML('beforeend', card);
-
 }
+
+
 
 function createCardGood({ description, image, name, price }) {
   const card = document.createElement('div');
@@ -166,28 +172,35 @@ function createCardGood({ description, image, name, price }) {
 
 function openGoods(event) {
   const target = event.target;
+  if (login) {
+    const restaurant = target.closest('.card-restaurant');
 
-  const restaurant = target.closest('.card-restaurant');
+    if (restaurant) {
 
-  if (restaurant) {
-    console.log(restaurant.dataset.products);
+     const info = restaurant.dataset.info.split(',');
 
-    if (login) {
+      const [ name, price, stars, kitchen ] = info;
+
       cardsMenu.textContent = '';
       containerPromo.classList.add('hide');
       restaurants.classList.add('hide');
       menu.classList.remove('hide');
+
+      restaurantTitle.textContent = name;
+      rating.textContent = stars;
+      minPrice.textContent = price+'₽';
+      category.textContent = kitchen;
+
+      getData(`./db/${restaurant.dataset.products}`).then(function (data) {
+        data.forEach(createCardGood);
+      });
     }
     else {
       toggleModalAuth();
     }
   }
-  getData(`./db/${restaurant.dataset.products}`).then(function (data) {
-    data.forEach(createCardGood);
-  });
+
 }
-
-
 function init() {
   getData('./db/partners.json').then(function (data) {
     data.forEach(createCardRestaurant)
@@ -210,3 +223,11 @@ function init() {
 
 init();
 
+new Swiper('.swiper-container', {
+  loop: true,
+  autoplay: {
+    delay: 3000,
+  },
+  sliderPerView: 1,
+  slidesPerColumn: 1,
+})
